@@ -42,20 +42,22 @@ func printParams(pass *analysis.Pass, typ *ast.InterfaceType, node *ast.TypeSpec
 	methods := (*typ).Methods
 	list := (*methods).List
 
-	res := make([]string, 0)
+	res := make([][]string, 0)
 	for _, field := range list {
+		set := make([]string, 0)
 		switch n := field.Type.(type) {
 		case *ast.BinaryExpr:
-			res = append(res, binaryExprToSlice(n)...)
+			set = append(set, binaryExprToSlice(n)...)
 		case *ast.UnaryExpr:
 			ident, _ := n.X.(*ast.Ident)
-			res = append(res, fmt.Sprintf("%s%s", n.Op, ident.Name))
+			set = append(set, fmt.Sprintf("%s%s", n.Op, ident.Name))
 		case *ast.Ident:
-			res = append(res, n.Name)
+			set = append(set, n.Name)
 		// TODO: handle FuncType
 		case *ast.FuncType:
-			res = append(res, "some method")
+			set = append(set, "some method")
 		}
+		res = append(res, set)
 	}
 	pass.Reportf(node.Pos(), "%v", res)
 }
