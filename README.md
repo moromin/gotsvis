@@ -2,5 +2,5 @@
 
 ## install
 ```bash
-go get github.com/moromin/gotsvis/cmd/gotvis
+go get github.com/moromin/gotsvis/cmd/gotsvis
 ```
