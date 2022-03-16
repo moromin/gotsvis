@@ -25,22 +25,20 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	inspect := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 
 	// ast.Print(pass.Fset, pass.Files[0])
+	// fmt.Println(pass.TypesInfo)
 
 	inspect.Preorder(nil, func(n ast.Node) {
 		if n, ok := n.(*ast.TypeSpec); ok {
-			printParams(pass, n)
+			if typ, ok := n.Type.(*ast.InterfaceType); ok {
+				printParams(pass, typ, n)
+			}
 		}
 	})
 
 	return nil, nil
 }
 
-func printParams(pass *analysis.Pass, node *ast.TypeSpec) {
-	typ, ok := node.Type.(*ast.InterfaceType)
-	if !ok {
-		return
-	}
-
+func printParams(pass *analysis.Pass, typ *ast.InterfaceType, node *ast.TypeSpec) {
 	methods := (*typ).Methods
 	list := (*methods).List
 
@@ -54,6 +52,9 @@ func printParams(pass *analysis.Pass, node *ast.TypeSpec) {
 			res = append(res, fmt.Sprintf("%s%s", n.Op, ident.Name))
 		case *ast.Ident:
 			res = append(res, n.Name)
+		// TODO: handle FuncType
+		case *ast.FuncType:
+			res = append(res, "some method")
 		}
 	}
 	pass.Reportf(node.Pos(), "%v", res)
