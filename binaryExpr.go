@@ -21,11 +21,9 @@ func binaryExprToSlice(root *ast.BinaryExpr) []string {
 		}
 		switch n := node.(type) {
 		case *ast.Ident:
-			// fmt.Println(n.Name)
 			res = append(res, n.Name)
 		case *ast.UnaryExpr:
 			ident, _ := n.X.(*ast.Ident)
-			// fmt.Printf("%s%s\n", n.Op, ident.Name)
 			res = append(res, fmt.Sprintf("%s%s", n.Op, ident.Name))
 		case *ast.BinaryExpr:
 			ast.Walk(v2, n.X)

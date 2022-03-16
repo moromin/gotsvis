@@ -9,7 +9,7 @@ import (
 	"golang.org/x/tools/go/ast/inspector"
 )
 
-const doc = "gotsvis is ..."
+const doc = "gotsvis visualize type set"
 
 // Analyzer is ...
 var Analyzer = &analysis.Analyzer{
@@ -28,25 +28,22 @@ func run(pass *analysis.Pass) (interface{}, error) {
 
 	inspect.Preorder(nil, func(n ast.Node) {
 		if n, ok := n.(*ast.TypeSpec); ok {
-			printParams(n)
+			printParams(pass, n)
 		}
 	})
 
 	return nil, nil
 }
 
-func printParams(node *ast.TypeSpec) {
+func printParams(pass *analysis.Pass, node *ast.TypeSpec) {
 	typ, ok := node.Type.(*ast.InterfaceType)
 	if !ok {
 		return
 	}
 
-	fmt.Println(node.Name)
-
 	methods := (*typ).Methods
 	list := (*methods).List
 
-	// confirm node
 	res := make([]string, 0)
 	for _, field := range list {
 		switch n := field.Type.(type) {
@@ -54,12 +51,10 @@ func printParams(node *ast.TypeSpec) {
 			res = append(res, binaryExprToSlice(n)...)
 		case *ast.UnaryExpr:
 			ident, _ := n.X.(*ast.Ident)
-			// fmt.Printf("%s%s\n", n.Op, ident.Name)
 			res = append(res, fmt.Sprintf("%s%s", n.Op, ident.Name))
 		case *ast.Ident:
-			// fmt.Println(n.Name)
 			res = append(res, n.Name)
 		}
 	}
-	fmt.Println(res)
+	pass.Reportf(node.Pos(), "%v", res)
 }
