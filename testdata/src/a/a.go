@@ -1,12 +1,22 @@
 package a
 
-func f1[T any](v T) {
-	print(v)
+type A interface {
+	string
 }
 
-type A[T ~bool] []T
-type B[T ~int] []T
+type B interface {
+	string | int | float64
+}
 
 type C interface {
 	~string | int
+}
+
+type D interface {
+	string | int | float64 | bool
+}
+
+type E interface {
+	int | string
+	float64
 }
