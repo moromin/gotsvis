@@ -3,13 +3,10 @@ package gotsvis
 import (
 	"fmt"
 	"go/types"
-	"image"
-	"image/png"
-	"log"
-	"net/http"
-	"os"
-	"strconv"
 	"strings"
+
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 )
 
 func contains(s []string, v string) bool {
@@ -41,73 +38,30 @@ func getSubsetCombination(s []string) [][]string {
 	return res
 }
 
-func getVennDiagram(m map[string]int) {
-	baseURL := "http://chart.apis.google.com/chart"
-	req, err := http.NewRequest(http.MethodGet, baseURL, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	q := req.URL.Query()
-
-	names := []string{}
-	numbers := []string{}
-	for k, v := range m {
-		names = append(names, k)
-		numbers = append(numbers, strconv.Itoa(v))
-	}
-
-	q.Add("cht", "v")
-	q.Add("chs", "300x300")
-	q.Add("chd", fmt.Sprintf("t:%s", strings.Join(numbers, ",")))
-	q.Add("chdl", strings.Join(names, "|"))
-	req.URL.RawQuery = q.Encode()
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	out, err := os.Create("venn.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer out.Close()
-
-	img, _, err := image.Decode(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err := png.Encode(out, img); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func calcSet(s [][]string) map[string]int {
+func calcNumOfSubset(subsets [][]string) map[string]int {
 	res := make(map[string]int)
-	for _, typs := range s {
-		n := len(typs)
-		if n == 1 {
-			if strings.HasPrefix(typs[0], "~") {
-				res[typs[0]] = 100
-			} else {
-				res[typs[0]] = 10
-			}
+
+	for _, subset := range subsets {
+		if len(subset) == 1 {
+			res[subset[0]] = 10
 		} else {
-			res[strings.Join(typs, "∩")] = 0
+			res[strings.Join(subset, " ∩ ")] = 0
 		}
 	}
 	return res
 }
 
 func Venn(title string, s []types.Type) {
+	// Name:size
+	// res := make(map[string]int)
+
 	// set := map[string][]string{
 	// 	"Union":        []string{},
 	// 	"Intersection": []string{},
 	// }
 
-	// Name:size
-	// res := make(map[string]int)
-	typeSlice := make([]string, 0)
+	typeSlice := []string{}
+	subset := [][]string{}
 
 	for _, elem := range s {
 		switch n := elem.(type) {
@@ -126,9 +80,20 @@ func Venn(title string, s []types.Type) {
 				// }
 			}
 			// getSubsetCombination(typeSlice)
-			subset := getSubsetCombination(typeSlice)
-			res := calcSet(subset)
-			getVennDiagram(res)
+			subset = getSubsetCombination(typeSlice)
+			// fmt.Println(subset)
+			numOfSubset := calcNumOfSubset(subset)
+			printMap(numOfSubset)
+			// getVennDiagram(res)
 		}
+	}
+}
+
+func printMap(m map[string]int) {
+	keys := maps.Keys(m)
+	slices.SortFunc(keys, func(a, b string) bool { return len(a) < len(b) })
+
+	for _, k := range keys {
+		fmt.Printf("%s: %d\n", k, m[k])
 	}
 }
