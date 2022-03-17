@@ -8,15 +8,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func contains(s []string, v string) bool {
-	for _, elem := range s {
-		if elem == v {
-			return true
-		}
-	}
-	return false
-}
-
 func getSubsetCombination(s []string) [][]string {
 	n := len(s)
 	res := make([][]string, 0)
@@ -37,7 +28,7 @@ func getSubsetCombination(s []string) [][]string {
 	return res
 }
 
-func calcNumOfSubset(subsets [][]string) map[string]int {
+func unionSubset(subsets [][]string) map[string]int {
 	res := make(map[string]int)
 
 	for _, subset := range subsets {
@@ -54,35 +45,67 @@ func calcNumOfSubset(subsets [][]string) map[string]int {
 	return res
 }
 
-func Venn(title string, s []types.Type) {
-	// Name:size
-	// res := make(map[string]int)
+func intersectionSubset(subsets [][]string, numOfSubset map[string]int, typName string) map[string]int {
+	if _, ok := numOfSubset[typName]; !ok {
+		return map[string]int{}
+	}
 
-	// set := map[string][]string{
-	// 	"Union":        []string{},
-	// 	"Intersection": []string{},
-	// }
+	res := numOfSubset
+	for _, subset := range subsets {
+		if !(len(subset) == 1 && subset[0] == typName) {
+			res[strings.Join(subset, " ∩ ")] = 0
+		}
+	}
+	return res
+}
 
+func Venn(title string, s []types.Type, du map[string]string) {
 	typeSlice := []string{}
 	subsets := [][]string{}
+	numOfSubset := make(map[string]int)
 
 	for _, elem := range s {
 		switch n := elem.(type) {
 		case *types.Union:
+			// TODO: ~*** intersection other, (ex. int | string; ~int)
+			// if n.Len() == 1 {}
+
 			for i := 0; i < n.Len(); i++ {
 				typeSlice = append(typeSlice, n.Term(i).String())
 			}
 			subsets = getSubsetCombination(typeSlice)
-			numOfSubset := calcNumOfSubset(subsets)
-			printMap(numOfSubset, subsets, title)
+			numOfSubset = unionSubset(subsets)
+
+		// Typesets are described from the union set,
+		// and it is assumed that there is no union set under the product set.
+		case *types.Basic:
+			typName := n.String()
+			if !slices.Contains(typeSlice, typName) {
+				typeSlice = append(typeSlice, typName)
+				subsets = getSubsetCombination(typeSlice)
+			}
+			numOfSubset = intersectionSubset(subsets, numOfSubset, typName)
+
+		// TODO: support types and sets that are not yet supported.
+		default:
+			fmt.Printf("%[1]T %[1]v\n", n)
 		}
+		// fmt.Println(subsets)
+		// fmt.Println(numOfSubset)
 	}
+	printMap(numOfSubset, subsets, title)
 }
 
 func printMap(m map[string]int, subsets [][]string, title string) {
-	slices.SortFunc(subsets, func(a, b []string) bool { return len(a) < len(b) })
-
 	fmt.Printf("TypeSet: %q\n", title)
+
+	// TODO: modify empty set condition
+	if len(m) == 0 {
+		fmt.Printf("Empty set.\n\n")
+		return
+	}
+
+	slices.SortFunc(subsets, func(a, b []string) bool { return len(a) < len(b) })
 	fmt.Printf("%s\n", strings.Repeat("-", 20+len(title)))
 	for _, subset := range subsets {
 		k := strings.Join(subset, " ∩ ")

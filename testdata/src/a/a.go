@@ -16,20 +16,17 @@ type I interface {
 // 	Equal() bool
 // }
 
-// type D interface {
-// 	string | ~int
-// 	MyInt
-// }
+type D interface {
+	~int | string
+	string
+}
 
 type E interface {
 	int | string
 	float64
 }
 
-// Bug?
-// If a single type with ~ is included, it is interpreted as *types.Union.
-// With the current go/types package, the following two are impossible to distinguish.
-// So, it is necessary to traverse ASTs using *ast.BinaryExpr, etc. in the go/ast package.
+// n.Len() is different
 // type F interface {
 // 	int | string
 // 	~float64
