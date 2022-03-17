@@ -71,12 +71,11 @@ func Venn(title string, s []types.Type) {
 		switch n := elem.(type) {
 		case *types.Union:
 			for i := 0; i < n.Len(); i++ {
-				term := n.Term(i)
-				typeName := term.String()
-				typeSlice = append(typeSlice, typeName)
+				typeSlice = append(typeSlice, n.Term(i).String())
 			}
 			subset = getSubsetCombination(typeSlice)
 			numOfSubset := calcNumOfSubset(subset)
+			fmt.Printf("TypeSet: %s\n", title)
 			printMap(numOfSubset)
 			fmt.Println()
 		}
