@@ -5,7 +5,6 @@ import (
 	"go/types"
 	"strings"
 
-	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
 
@@ -65,7 +64,7 @@ func Venn(title string, s []types.Type) {
 	// }
 
 	typeSlice := []string{}
-	subset := [][]string{}
+	subsets := [][]string{}
 
 	for _, elem := range s {
 		switch n := elem.(type) {
@@ -73,20 +72,22 @@ func Venn(title string, s []types.Type) {
 			for i := 0; i < n.Len(); i++ {
 				typeSlice = append(typeSlice, n.Term(i).String())
 			}
-			subset = getSubsetCombination(typeSlice)
-			numOfSubset := calcNumOfSubset(subset)
-			fmt.Printf("TypeSet: %s\n", title)
-			printMap(numOfSubset)
-			fmt.Println()
+			subsets = getSubsetCombination(typeSlice)
+			numOfSubset := calcNumOfSubset(subsets)
+			printMap(numOfSubset, subsets, title)
 		}
 	}
 }
 
-func printMap(m map[string]int) {
-	keys := maps.Keys(m)
-	slices.SortFunc(keys, func(a, b string) bool { return len(a) < len(b) })
+func printMap(m map[string]int, subsets [][]string, title string) {
+	slices.SortFunc(subsets, func(a, b []string) bool { return len(a) < len(b) })
 
-	for _, k := range keys {
+	fmt.Printf("TypeSet: %q\n", title)
+	fmt.Printf("%s\n", strings.Repeat("-", 20+len(title)))
+	for _, subset := range subsets {
+		k := strings.Join(subset, " ∩ ")
 		fmt.Printf("%s: %d\n", k, m[k])
 	}
+
+	fmt.Println()
 }
