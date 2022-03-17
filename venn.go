@@ -8,57 +8,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func getSubsetCombination(s []string) [][]string {
-	n := len(s)
-	res := make([][]string, 0)
-
-	if n == 0 {
-		return res
-	}
-
-	for i := 1; i < (1 << n); i++ {
-		set := make([]string, 0)
-		for j := 0; j < n; j++ {
-			if i>>j&1 == 1 {
-				set = append(set, s[j])
-			}
-		}
-		res = append(res, set)
-	}
-	return res
-}
-
-func unionSubset(subsets [][]string) map[string]int {
-	res := make(map[string]int)
-
-	for _, subset := range subsets {
-		if len(subset) == 1 {
-			if strings.HasPrefix(subset[0], "~") {
-				res[subset[0]] = 100
-			} else {
-				res[subset[0]] = 10
-			}
-		} else {
-			res[strings.Join(subset, " ∩ ")] = 0
-		}
-	}
-	return res
-}
-
-func intersectionSubset(subsets [][]string, numOfSubset map[string]int, typName string) map[string]int {
-	if _, ok := numOfSubset[typName]; !ok {
-		return map[string]int{}
-	}
-
-	res := numOfSubset
-	for _, subset := range subsets {
-		if !(len(subset) == 1 && subset[0] == typName) {
-			res[strings.Join(subset, " ∩ ")] = 0
-		}
-	}
-	return res
-}
-
 func Venn(title string, s []types.Type, du map[string]string) {
 	typeSlice := []string{}
 	subsets := [][]string{}
@@ -67,14 +16,21 @@ func Venn(title string, s []types.Type, du map[string]string) {
 	for _, elem := range s {
 		switch n := elem.(type) {
 		case *types.Union:
-			// TODO: ~*** intersection other, (ex. int | string; ~int)
-			// if n.Len() == 1 {}
-
-			for i := 0; i < n.Len(); i++ {
-				typeSlice = append(typeSlice, n.Term(i).String())
+			// TODO: ~*** intersection other, (ex. int | string; ~int, *types.Union.Len() == 1)
+			if n.Len() == 1 {
+				typName := n.String()
+				if !slices.Contains(typeSlice, typName) {
+					typeSlice = append(typeSlice, typName)
+					subsets = getSubsetCombination(typeSlice)
+				}
+				numOfSubset = intersectionSubset(subsets, numOfSubset, typName)
+			} else {
+				for i := 0; i < n.Len(); i++ {
+					typeSlice = append(typeSlice, n.Term(i).String())
+				}
+				subsets = getSubsetCombination(typeSlice)
+				numOfSubset = unionSubset(subsets)
 			}
-			subsets = getSubsetCombination(typeSlice)
-			numOfSubset = unionSubset(subsets)
 
 		// Typesets are described from the union set,
 		// and it is assumed that there is no union set under the product set.

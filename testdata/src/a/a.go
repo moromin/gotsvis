@@ -1,11 +1,5 @@
 package a
 
-type MyInt int
-type MyMyInt MyInt
-type I interface {
-	string | ~int | bool
-}
-
 // error: empty
 // type A interface {
 // }
@@ -16,32 +10,39 @@ type I interface {
 // 	Equal() bool
 // }
 
-type D interface {
+type C interface {
 	~int | string
 	string
 }
 
-type E interface {
+type D interface {
 	int | string
 	float64
 }
 
-// n.Len() is different
-// type F interface {
-// 	int | string
-// 	~float64
-// }
-// type F interface {
-// 	int | string | ~float64
-// }
+type E interface {
+	int | string
+	~float64
+}
 
-// type G interface {
-// 	string | float64
-// 	~int
-// }
+type F interface {
+	string | int
+	~int
+}
 
+type G interface {
+	~int | ~string
+	string
+}
+
+type H interface {
+	~int | ~string
+	~string
+}
+
+// TODO: support the following
 // type MyInt int
-// type H interface {
-// 	~int | ~string
+// type Todo interface {
+// 	string | ~int | bool
 // 	MyInt
 // }
