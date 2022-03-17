@@ -1,37 +1,38 @@
 package a
 
-type A interface { // want "[string]"
-	string
-}
-type C interface { // want "[~string int]"
-	~string | int
-}
-
-type B interface { // want "[string int float64]"
-	string | int | float64
-}
-
-type D interface { // want "[string int float64 bool]"
-	string | int | float64 | bool
-}
-
-type E interface { // want "[int string float4]"
-	int | string
-	float64
-}
-
-type F interface { // want "[int string float64]"
-	int | string
-	float64
-}
-
-type G interface {
-	string | float64
-	~int
-}
-
+// type A interface {
+// 	string
+// }
 type MyInt int
-type H interface {
-	~int | ~string
-	MyInt
+type I interface {
+	string | ~int | bool
 }
+
+// type B interface {
+// 	string | int | float64
+// }
+
+// type D interface {
+// 	string | int | float64 | bool
+// }
+
+// type E interface {
+// 	int | string
+// 	float64
+// }
+
+// type F interface {
+// 	int | string
+// 	float64
+// }
+
+// type G interface {
+// 	string | float64
+// 	~int
+// }
+
+// type MyInt int
+// type H interface {
+// 	~int | ~string
+// 	MyInt
+// }
