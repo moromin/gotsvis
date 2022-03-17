@@ -19,4 +19,4 @@ string ∩ ~int ∩ bool: 0
 ```
 
 - venn diagram ([venn.js](https://github.com/benfred/venn.js/))
-![Example 1](https://github.com/moromin/gotsvis/blob/dataset/images/vennjs_OR_exapmle.png)
+![Example 1](https://github.com/moromin/gotsvis/blob/main/images/vennjs_OR_exapmle.png)
