@@ -43,7 +43,11 @@ func calcNumOfSubset(subsets [][]string) map[string]int {
 
 	for _, subset := range subsets {
 		if len(subset) == 1 {
-			res[subset[0]] = 10
+			if strings.HasPrefix(subset[0], "~") {
+				res[subset[0]] = 100
+			} else {
+				res[subset[0]] = 10
+			}
 		} else {
 			res[strings.Join(subset, " ∩ ")] = 0
 		}
