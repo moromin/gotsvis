@@ -1,38 +1,48 @@
 package a
 
+// error: empty
 // type A interface {
-// 	string
 // }
-type MyInt int
-type I interface {
-	string | ~int | bool
-}
 
+// error: contains method
 // type B interface {
 // 	string | int | float64
+// 	Equal() bool
 // }
 
-// type D interface {
-// 	string | int | float64 | bool
-// }
+type C interface {
+	~int | string
+	string
+}
 
-// type E interface {
-// 	int | string
-// 	float64
-// }
+type D interface {
+	int | string
+	float64
+}
 
-// type F interface {
-// 	int | string
-// 	float64
-// }
+type E interface {
+	int | string
+	~float64
+}
 
-// type G interface {
-// 	string | float64
-// 	~int
-// }
+type F interface {
+	string | int
+	~int
+}
 
+type G interface {
+	~int | ~string
+	string
+}
+
+type H interface {
+	~int | ~string
+	~string
+}
+
+// TODO: support the following
 // type MyInt int
-// type H interface {
-// 	~int | ~string
+// type Todo interface {
+// 	string | ~int | bool
 // 	MyInt
 // }

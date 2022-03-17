@@ -40,67 +40,60 @@ func run() error {
 		}
 	}
 
-	// AST dump
-	// for i, _ := range pkgs {
-	// 	fset := token.NewFileSet()
-	// 	f, err := parser.ParseFile(fset, os.Args[i+1], nil, 0)
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 		os.Exit(1)
-	// 	}
-	// 	ast.Print(fset, f)
-	// }
-
 	return nil
 }
 
 func analyze(pkg *packages.Package) error {
 	inspect := inspector.New(pkg.Syntax)
 
+	// Map defined type -> underlying type
+	du := make(map[string]string)
+
+	inspect.Preorder(nil, func(n ast.Node) {
+		s := pkg.TypesInfo.Scopes[n]
+		if s == nil {
+			return
+		}
+		for _, name := range s.Parent().Names() {
+			if typ, ok := s.Parent().Lookup(name).Type().(*types.Named); ok {
+				du[name] = typ.Underlying().String()
+			}
+		}
+	})
+
+	// Search type set
+	var title string
+
 	nodeFilter := []ast.Node{
 		(*ast.InterfaceType)(nil),
 		(*ast.TypeSpec)(nil),
 	}
-
-	var title string
 
 	inspect.Preorder(nodeFilter, func(n ast.Node) {
 		switch n := n.(type) {
 		case *ast.TypeSpec:
 			if n.Type != nil {
 				title = n.Name.Name
-				// fmt.Printf("Type set: %s\n", n.Name.Name)
 			}
 		case *ast.InterfaceType:
+			ifn := pkg.TypesInfo.TypeOf(n).(*types.Interface)
+
+			// check error case
+			if ifn.Empty() {
+				fmt.Fprintf(os.Stderr, "interface %q is empty...\n", title)
+			} else if ifn.NumMethods() != 0 {
+				fmt.Fprintf(os.Stderr, "interface %q is not type set...\n", title)
+			}
 			if n.Methods == nil {
 				return
 			}
+
 			res := make([]types.Type, 0)
 			for _, e := range n.Methods.List {
 				typ := pkg.TypesInfo.TypeOf(e.Type)
 				res = append(res, typ)
-				// fmt.Printf("\t%[1]T %[1]v\n", typ.String())
-				// fmt.Println()
-				// set := make([]types.Type, 0)
-				// switch typ := typ.(type) {
-				// case *types.Union:
-				// fmt.Printf("\t%[1]T %[1]v\n", typ.String())
-				// for i := 0; i < typ.Len(); i++ {
-				// set = append(set, typ.Term(i))
-				// term := typ.Term(i)
-				// fmt.Printf("\t\t%[1]T %[1]v\n", typ.Term(i))
-				// if term.Tilde() {
-				// } else {
-				// 	fmt.Printf("\t\t%[1]T %[1]v\n", term.Type())
-				// }
-				// }
-				// res = append(res, set)
-				// default:
-				// res = append(res, []string{typ.String()})
-				// fmt.Printf("\t%[1]T %[1]v\n", typ)
-				// }
 			}
-			gotsvis.Venn(title, res)
+			gotsvis.Venn(title, res, du)
 		}
 	})
 
