@@ -42,6 +42,7 @@ func Venn(title string, s []types.Type, du map[string]string) {
 			}
 			numOfSubset = intersectionSubset(subsets, numOfSubset, typName)
 
+		// TODO: support defined type
 		case *types.Named:
 			typName := n.String()[len("command-line-arguments."):]
 			if !slices.Contains(typeSlice, typName) {
