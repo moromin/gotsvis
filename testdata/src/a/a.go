@@ -41,8 +41,8 @@ type H interface {
 }
 
 // TODO: support the following
-// type MyInt int
-// type Todo interface {
-// 	string | ~int | bool
-// 	MyInt
-// }
+type MyInt int
+type Todo interface {
+	string | ~int | bool
+	MyInt
+}

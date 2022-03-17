@@ -42,12 +42,17 @@ func Venn(title string, s []types.Type, du map[string]string) {
 			}
 			numOfSubset = intersectionSubset(subsets, numOfSubset, typName)
 
+		case *types.Named:
+			typName := n.String()[len("command-line-arguments."):]
+			if !slices.Contains(typeSlice, typName) {
+				typeSlice = append(typeSlice, typName)
+				subsets = getSubsetCombination(typeSlice)
+			}
+
 		// TODO: support types and sets that are not yet supported.
 		default:
 			fmt.Printf("%[1]T %[1]v\n", n)
 		}
-		// fmt.Println(subsets)
-		// fmt.Println(numOfSubset)
 	}
 	printMap(numOfSubset, subsets, title)
 }

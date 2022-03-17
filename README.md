@@ -16,4 +16,3 @@ go run ./cmd/gotsvis/main.go <target_source_file>
 
 ## Example
 - [examples](https://github.com/moromin/gotsvis/tree/main/examples)
-
