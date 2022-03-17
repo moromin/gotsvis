@@ -4,6 +4,8 @@
 The concept of typesets was added in Go 1.18.
 Type sets is a new concept for describing the conditions under which a type "implements" an interface.
 
+`gotsvis` doesn't support interface that has duplicate type set or method set.
+
 `gotsvis` provides dataset that can be used to draw a Venn diagram.
 
 ## Usage
