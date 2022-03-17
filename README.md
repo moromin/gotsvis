@@ -31,4 +31,4 @@ string ∩ bool: 0
 string ∩ ~int ∩ bool: 0
 ```
 
-![Example 1](/image/vennjs_OR_exapmle.png)
+![Example 1](https://github.com/moromin/gotsvis/blob/dataset/images/vennjs_OR_exapmle.png)
