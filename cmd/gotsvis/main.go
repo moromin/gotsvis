@@ -60,9 +60,18 @@ func analyze(pkg *packages.Package) error {
 				title = n.Name.Name
 			}
 		case *ast.InterfaceType:
+			m := pkg.TypesInfo.TypeOf(n).(*types.Interface)
+
+			// check error case
+			if m.Empty() {
+				fmt.Fprintf(os.Stderr, "interface %q is empty...\n", title)
+			} else if m.NumMethods() != 0 {
+				fmt.Fprintf(os.Stderr, "interface %q is not type set...\n", title)
+			}
 			if n.Methods == nil {
 				return
 			}
+
 			res := make([]types.Type, 0)
 			for _, e := range n.Methods.List {
 				typ := pkg.TypesInfo.TypeOf(e.Type)

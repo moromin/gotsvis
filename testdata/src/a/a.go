@@ -1,20 +1,22 @@
 package a
 
-// type A interface {
-// 	string
-// }
 type MyInt int
 type I interface {
 	string | ~int | bool
 }
 
-// type B interface {
-// 	string | int | float64
-// }
+type A interface {
+}
 
-// type D interface {
-// 	string | int | float64 | bool
-// }
+type B interface {
+	string | int | float64
+	Equal() bool
+}
+
+type D interface {
+	string | ~int
+	MyInt
+}
 
 // type E interface {
 // 	int | string
