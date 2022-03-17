@@ -74,21 +74,11 @@ func Venn(title string, s []types.Type) {
 				term := n.Term(i)
 				typeName := term.String()
 				typeSlice = append(typeSlice, typeName)
-				// if term.Tilde() {
-				// 	res[typeName] = 100
-				// } else {
-				// 	if term.String() != term.Type
-				// 	if _, ok := res[typeName]; !ok {
-
-				// 	}
-				// }
 			}
-			// getSubsetCombination(typeSlice)
 			subset = getSubsetCombination(typeSlice)
-			// fmt.Println(subset)
 			numOfSubset := calcNumOfSubset(subset)
 			printMap(numOfSubset)
-			// getVennDiagram(res)
+			fmt.Println()
 		}
 	}
 }
