@@ -46,12 +46,28 @@ func run() error {
 func analyze(pkg *packages.Package) error {
 	inspect := inspector.New(pkg.Syntax)
 
+	// Map defined type -> underlying type
+	du := make(map[string]string)
+
+	inspect.Preorder(nil, func(n ast.Node) {
+		s := pkg.TypesInfo.Scopes[n]
+		if s == nil {
+			return
+		}
+		for _, name := range s.Parent().Names() {
+			if typ, ok := s.Parent().Lookup(name).Type().(*types.Named); ok {
+				du[name] = typ.Underlying().String()
+			}
+		}
+	})
+
+	// Search type set
+	var title string
+
 	nodeFilter := []ast.Node{
 		(*ast.InterfaceType)(nil),
 		(*ast.TypeSpec)(nil),
 	}
-
-	var title string
 
 	inspect.Preorder(nodeFilter, func(n ast.Node) {
 		switch n := n.(type) {
@@ -60,12 +76,12 @@ func analyze(pkg *packages.Package) error {
 				title = n.Name.Name
 			}
 		case *ast.InterfaceType:
-			m := pkg.TypesInfo.TypeOf(n).(*types.Interface)
+			ifn := pkg.TypesInfo.TypeOf(n).(*types.Interface)
 
 			// check error case
-			if m.Empty() {
+			if ifn.Empty() {
 				fmt.Fprintf(os.Stderr, "interface %q is empty...\n", title)
-			} else if m.NumMethods() != 0 {
+			} else if ifn.NumMethods() != 0 {
 				fmt.Fprintf(os.Stderr, "interface %q is not type set...\n", title)
 			}
 			if n.Methods == nil {
@@ -77,7 +93,7 @@ func analyze(pkg *packages.Package) error {
 				typ := pkg.TypesInfo.TypeOf(e.Type)
 				res = append(res, typ)
 			}
-			gotsvis.Venn(title, res)
+			gotsvis.Venn(title, res, du)
 		}
 	})
 
